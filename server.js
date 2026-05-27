@@ -13,6 +13,17 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));   // serves index.html (the checkout page)
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'checkout.html'));
+});
+app.get('/checkout', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'checkout.html'));
+});
+
 const {
   PAYPAL_CLIENT_ID,
   PAYPAL_SECRET,
