@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — Bloom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f7f3ec;--paper-2:#efe8dc;--ink:#1a1714;--ink-soft:#5c554c;
+  --coral:#ff5a3c;--moss:#2f4b3f;--line:rgba(26,23,20,.12);--r:24px;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Outfit',system-ui,sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.ital{font-family:'DM Serif Display',serif;font-style:italic;color:var(--coral)}
+
+.bar{display:flex;align-items:center;justify-content:space-between;padding:1.3rem clamp(1.2rem,4vw,3rem);border-bottom:1px solid var(--line)}
+.logo{font-size:1.5rem;font-weight:600;display:flex;align-items:center;gap:.5rem}
+.logo-mark{width:28px;height:28px;border-radius:50%;background:var(--coral);position:relative}
+.logo-mark::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--paper)}
+.secure{font-size:.85rem;color:var(--ink-soft);display:flex;align-items:center;gap:.4rem}
+
+.wrap{flex:1;max-width:1040px;margin:0 auto;width:100%;padding:3rem clamp(1.2rem,4vw,3rem);display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+.col-head{margin-bottom:1.5rem}
+.col-head .eyebrow{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);font-weight:600}
+.col-head h1{font-size:2rem;font-weight:600;line-height:1.1;margin-top:.4rem}
+.card{background:var(--paper-2);border-radius:var(--r);padding:2rem}
+
+.field{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.1rem}
+.field label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:600}
+.field input,.field select{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:.85rem 1rem;font-family:inherit;font-size:1rem;color:var(--ink);transition:.3s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--coral)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+/* cart items */
+.item{display:flex;gap:1rem;align-items:center;padding:1rem 0;border-bottom:1px solid var(--line)}
+.item:first-of-type{padding-top:0}
+.item .thumb{width:60px;height:60px;border-radius:12px;object-fit:cover;flex-shrink:0}
+.item .info h3{font-size:1rem;font-weight:600;line-height:1.2}
+.item .info p{font-size:.82rem;color:var(--ink-soft)}
+.item .qty{display:flex;align-items:center;gap:.5rem;margin-left:auto}
+.item .qty button{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);font-size:1rem;cursor:pointer;color:var(--ink);transition:.2s}
+.item .qty button:hover{border-color:var(--coral);color:var(--coral)}
+.item .qty span{min-width:18px;text-align:center;font-weight:600}
+.item .ln{min-width:64px;text-align:right;font-weight:600}
+.item .rm{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:1.1rem;margin-left:.4rem;line-height:1}
+.item .rm:hover{color:var(--coral)}
+
+.promo{display:flex;gap:.6rem;margin:1.3rem 0 .4rem}
+.promo input{flex:1;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:.7rem 1rem;font-family:inherit;font-size:.95rem}
+.promo input:focus{outline:none;border-color:var(--coral)}
+.promo button{padding:.7rem 1.2rem;border-radius:12px;border:none;background:var(--ink);color:var(--paper);font-weight:600;cursor:pointer;transition:.3s}
+.promo button:hover{background:var(--coral)}
+.promo-msg{font-size:.82rem;min-height:1.1em;margin-bottom:.6rem}
+.promo-msg.ok{color:var(--moss)}.promo-msg.err{color:var(--coral)}
+
+.line{display:flex;justify-content:space-between;padding:.45rem 0;color:var(--ink-soft)}
+.line.total{border-top:1px solid var(--line);margin-top:.5rem;padding-top:1rem;color:var(--ink);font-weight:600;font-size:1.3rem}
+.line.total .amt{font-family:'DM Serif Display',serif}
+
+.pay-head{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:600;margin:1.5rem 0 1rem;text-align:center;position:relative}
+.pay-head::before,.pay-head::after{content:"";position:absolute;top:50%;width:26%;height:1px;background:var(--line)}
+.pay-head::before{left:0}.pay-head::after{right:0}
+#paypal-button-container{min-height:48px}
+.note{font-size:.8rem;color:var(--ink-soft);text-align:center;margin-top:1rem}
+.loading{font-size:.85rem;color:var(--ink-soft);text-align:center;padding:.6rem}
+
+.done{display:none;position:fixed;inset:0;z-index:999;background:rgba(247,243,236,.97);backdrop-filter:blur(6px);align-items:center;justify-content:center;text-align:center;padding:2rem}
+.done.show{display:flex}
+.done .inner{max-width:440px}
+.done .check{width:88px;height:88px;border-radius:50%;background:var(--moss);color:#fff;font-size:2.6rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+.done h2{font-size:2.2rem;font-weight:600;margin-bottom:.8rem}
+.done p{color:var(--ink-soft);margin-bottom:1rem}
+.done .oid{font-family:monospace;background:var(--paper-2);padding:.5rem 1rem;border-radius:10px;display:inline-block;font-size:.9rem}
+.done a{display:inline-block;margin-top:1.8rem;background:var(--coral);color:#fff;padding:.9rem 1.8rem;border-radius:100px;font-weight:600}
+
+.foot{text-align:center;padding:1.5rem;font-size:.8rem;color:var(--ink-soft);border-top:1px solid var(--line)}
+
+@media(max-width:820px){
+  .wrap{grid-template-columns:1fr;gap:2rem}
+  .summary{order:-1}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a href="#" class="logo"><span class="logo-mark"></span>Bloom</a>
+  <span class="secure">🔒 Secure checkout</span>
+</header>
+
+<main class="wrap">
+  <!-- LEFT: details -->
+  <section>
+    <div class="col-head"><span class="eyebrow">Step 1</span><h1>Your <span class="ital">details</span></h1></div>
+    <div class="card">
+      <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="you@example.com" required></div>
+      <div class="row2">
+        <div class="field"><label for="fname">First name</label><input id="fname" type="text" placeholder="Jane"></div>
+        <div class="field"><label for="lname">Last name</label><input id="lname" type="text" placeholder="Doe"></div>
+      </div>
+      <div class="field"><label for="addr">Address</label><input id="addr" type="text" placeholder="123 Garden Street"></div>
+      <div class="row2">
+        <div class="field"><label for="city">City</label><input id="city" type="text" placeholder="Casablanca"></div>
+        <div class="field"><label for="zip">Postal code</label><input id="zip" type="text" placeholder="20000"></div>
+      </div>
+      <div class="field"><label for="country">Country</label>
+        <select id="country"><option>Morocco</option><option>Portugal</option><option>United States</option><option>United Kingdom</option><option>France</option><option>Other</option></select>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: cart + paypal -->
+  <aside class="summary">
+    <div class="col-head"><span class="eyebrow">Step 2</span><h1>Your <span class="ital">cart</span></h1></div>
+    <div class="card">
+      <div id="cartItems"><!-- items injected by JS --></div>
+
+      <div class="promo">
+        <input id="promo" type="text" placeholder="Promo code (try BLOOM10)">
+        <button id="applyPromo">Apply</button>
+      </div>
+      <div class="promo-msg" id="promoMsg"></div>
+
+      <div class="line"><span>Subtotal</span><span id="subtotal">—</span></div>
+      <div class="line"><span>Discount</span><span id="discount">—</span></div>
+      <div class="line"><span>Tax</span><span id="tax">—</span></div>
+      <div class="line total"><span>Total</span><span class="amt" id="total">—</span></div>
+
+      <div class="pay-head">Pay with</div>
+      <div id="paypal-button-container"></div>
+      <div class="loading" id="payLoading">Loading secure payment…</div>
+      <div class="note">🔒 Payments processed securely by PayPal</div>
+    </div>
+  </aside>
+</main>
+
+<div class="done" id="done">
+  <div class="inner">
+    <div class="check">✓</div>
+    <h2>Thank you!</h2>
+    <p>Your payment was successful. A receipt is on its way to your email.</p>
+    <div class="oid">Order ID: <strong id="orderId">—</strong></div><br>
+    <a href="#" onclick="location.reload()">Back to store</a>
+  </div>
+</div>
+
+<footer class="foot">© 2026 Bloom Studio · Powered by PayPal</footer>
+
+<script>
+/* The cart: the browser stores ONLY ids + quantities + thumbnails.
+   All prices come from the server so they can't be tampered with. */
+const THUMBS = {
+  'growth-kit':  'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=200&q=80&auto=format&fit=crop',
+  'social-pack': 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200&q=80&auto=format&fit=crop',
+  'audit':       'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&q=80&auto=format&fit=crop',
+  'logo':        'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=200&q=80&auto=format&fit=crop'
+};
+
+let cart = [
+  { id:'growth-kit',  qty:1 },
+  { id:'social-pack', qty:2 },
+  { id:'audit',       qty:1 }
+];
+let promo = '';
+let quote = null;
+
+const $ = id => document.getElementById(id);
+
+/* Ask the server to price the cart, then render */
+async function refresh(){
+  const res = await fetch('/api/quote', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ cart, promo })
+  });
+  quote = await res.json();
+  renderItems();
+  $('subtotal').textContent = '$' + quote.subtotal;
+  $('discount').textContent = '−$' + quote.discount;
+  $('tax').textContent      = '$' + quote.tax;
+  $('total').textContent    = '$' + quote.total;
+}
+
+function renderItems(){
+  $('cartItems').innerHTML = quote.items.map(it => `
+    <div class="item">
+      <img class="thumb" src="${THUMBS[it.id]||''}" alt="">
+      <div class="info"><h3>${it.name}</h3><p>$${it.unit.toFixed(2)} each</p></div>
+      <div class="qty">
+        <button onclick="changeQty('${it.id}',-1)">−</button>
+        <span>${it.qty}</span>
+        <button onclick="changeQty('${it.id}',1)">+</button>
+      </div>
+      <span class="ln">$${it.lineTotal.toFixed(2)}</span>
+      <button class="rm" title="Remove" onclick="removeItem('${it.id}')">×</button>
+    </div>`).join('');
+}
+
+window.changeQty = (id, d) => {
+  const line = cart.find(c => c.id === id);
+  if(!line) return;
+  line.qty = Math.max(1, line.qty + d);
+  refresh();
+};
+window.removeItem = id => { cart = cart.filter(c => c.id !== id); refresh(); };
+
+$('applyPromo').onclick = async () => {
+  promo = $('promo').value.trim();
+  await refresh();
+  const msg = $('promoMsg');
+  if(promo && parseFloat(quote.discount) > 0){ msg.textContent = promo.toUpperCase()+' applied!'; msg.className='promo-msg ok'; }
+  else if(promo){ msg.textContent = 'Invalid code'; msg.className='promo-msg err'; }
+  else { msg.textContent=''; }
+};
+
+/* Boot: load PayPal config from server, then the SDK, then buttons */
+async function init(){
+  await refresh();
+  const cfg = await (await fetch('/api/config')).json();
+  const s = document.createElement('script');
+  s.src = `https://www.paypal.com/sdk/js?client-id=${cfg.clientId}&currency=${cfg.currency}`;
+  s.onload = mountButtons;
+  s.onerror = () => { $('payLoading').textContent = 'Could not load PayPal.'; };
+  document.head.appendChild(s);
+}
+
+function mountButtons(){
+  $('payLoading').style.display = 'none';
+  paypal.Buttons({
+    style:{ layout:'vertical', color:'black', shape:'pill', label:'paypal' },
+
+    // Order is created on the SERVER from the trusted cart
+    createOrder: () => fetch('/api/orders', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ cart, promo })
+    }).then(r => r.json()).then(d => d.id),
+
+    // Capture on the SERVER, then show success
+    onApprove: (data) => fetch(`/api/orders/${data.orderID}/capture`, {
+      method:'POST', headers:{'Content-Type':'application/json'}
+    }).then(r => r.json()).then(details => {
+      if(details.status === 'COMPLETED'){
+        $('orderId').textContent = details.id;
+        $('done').classList.add('show');
+      } else {
+        alert('Payment not completed. Please try again.');
+      }
+    }),
+
+    onError: err => { alert('Something went wrong with PayPal.'); console.error(err); }
+  }).render('#paypal-button-container');
+}
+
+init();
+</script>
+</body>
+</html>
