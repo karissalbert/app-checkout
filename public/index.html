@@ -284,14 +284,25 @@ function mountButtons(){
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ cart: cart(), promo })
     }).then(r => r.json()).then(d => d.id),
-    onApprove: (data) => fetch(`/api/orders/${data.orderID}/capture`, {
-      method:'POST', headers:{'Content-Type':'application/json'}
-    }).then(r => r.json()).then(details => {
-      if(details.status === 'COMPLETED'){
-        $('orderId').textContent = details.id;
-        $('done').classList.add('show');
-      } else { alert('Payment not completed. Please try again.'); }
-    }),
+    onApprove: (data) => {
+      // collect customer info from the form fields so it goes to Telegram
+      const customer = {
+        email:   $('email').value.trim(),
+        fname:   $('fname').value.trim(),
+        lname:   $('lname').value.trim(),
+        country: $('country').value,
+        city:    $('city').value.trim()
+      };
+      return fetch(`/api/orders/${data.orderID}/capture`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ cart: cart(), promo, customer })
+      }).then(r => r.json()).then(details => {
+        if(details.status === 'COMPLETED'){
+          $('orderId').textContent = details.id;
+          $('done').classList.add('show');
+        } else { alert('Payment not completed. Please try again.'); }
+      });
+    },
     onError: err => { alert('Payment error. Please try again.'); console.error(err); }
   }).render('#paypal-button-container');
 }
